@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Storm Prediction System - Historical Data</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- DataTables for better table display -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <!-- jQuery with fallback -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+            crossorigin="anonymous"></script>
+    <script>
+        // Fallback for jQuery if CDN fails
+        if (typeof jQuery === 'undefined') {
+            document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"><\/script>');
+        }
+    </script>
+    <!-- DataTables with error handling -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script>
+        // Check if DataTables loaded properly and provide fallback
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if jQuery is loaded
+            if (typeof jQuery === 'undefined') {
+                console.error("jQuery failed to load. Using basic table styling.");
+                document.getElementById('dataTable').classList.add('basic-table');
+                
+                // Add a fallback script for jQuery
+                const jqueryScript = document.createElement('script');
+                jqueryScript.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js";
+                document.head.appendChild(jqueryScript);
+                
+                jqueryScript.onload = function() {
+                    console.log("jQuery loaded as fallback");
+                    
+                    // Now try to load DataTables
+                    const dataTablesScript = document.createElement('script');
+                    dataTablesScript.src = "https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js";
+                    document.head.appendChild(dataTablesScript);
+                    
+                    dataTablesScript.onload = function() {
+                        console.log("DataTables loaded as fallback");
+                        // Reload the data after scripts are loaded
+                        setTimeout(loadData, 500);
+                    };
+                };
+            } 
+            // Check if DataTables is loaded
+            else if (typeof $.fn.DataTable === 'undefined') {
+                console.error("DataTables failed to load. Using basic table styling.");
+                document.getElementById('dataTable').classList.add('basic-table');
+                
+                // Add a fallback script for DataTables
+                const dataTablesScript = document.createElement('script');
+                dataTablesScript.src = "https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js";
+                document.head.appendChild(dataTablesScript);
+                
+                dataTablesScript.onload = function() {
+                    console.log("DataTables loaded as fallback");
+                    // Reload the data after scripts are loaded
+                    setTimeout(loadData, 500);
+                };
+            }
+        });
+    </script>
+    <style>
+        /* Fallback table styles if DataTables fails to load */
+        .basic-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .basic-table th, .basic-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .basic-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .basic-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .basic-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Loading indicator */
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            min-width: 200px;
+        }
+        
+        .loading-indicator i {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background-color: #f0f0f0;
+            margin-top: 10px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            animation: progress-animation 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes progress-animation {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 0%; }
+        }
+        
+        /* Improved data filters */
+        .data-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .data-filters .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        /* Responsive table container */
+        .data-table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="dashboard.html" class="logo">Solar<span>Storm</span>Prediction</a>
+                <button class="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="prediction.html">Prediction</a></li>
+                    <li><a href="visualization.html">Visualization</a></li>
+                    <li><a href="historical.html" class="active">Historical Data</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="historical-data">
+                <div class="dashboard-header">
+                    <h2>Historical Solar Storm Data</h2>
+                    <p>Browse and analyze historical solar storm data from our database.</p>
+                </div>
+
+                <div class="data-filters">
+                    <div class="form-group">
+                        <label for="datasetSelect">Select Dataset</label>
+                        <select id="datasetSelect" class="form-control">
+                            <option value="labels">DST Index Data</option>
+                            <option value="satellite_pos">Satellite Position Data</option>
+                            <option value="solar_wind">Solar Wind Data</option>
+                            <option value="sunspots">Sunspot Data</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodSelect">Select Period</label>
+                        <select id="periodSelect" class="form-control">
+                            <option value="all">All Periods</option>
+                            <option value="train_a">Training Period A</option>
+                            <option value="train_b">Training Period B</option>
+                            <option value="test">Test Period</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button id="loadDataBtn" class="btn"><i class="fas fa-sync-alt"></i> Load Data</button>
+                        <button id="exportDataBtn" class="btn" style="margin-left: 10px;"><i class="fas fa-file-download"></i> Export CSV</button>
+                    </div>
+                </div>
+
+                <div class="loading-indicator" id="loadingIndicator">
+                    <i class="fas fa-spinner fa-spin"></i> Loading data...
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="data-table-container">
+                    <table id="dataTable" class="data-table">
+                        <thead>
+                            <tr id="tableHeader">
+                                <!-- Headers will be dynamically populated -->
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Data will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="data-summary" id="dataSummary">
+                    <h3>Data Summary</h3>
+                    <p>Select a dataset and period to view the data.</p>
+                </div>
+
+                <div class="data-actions">
+                    <h3>Data Analysis Tools</h3>
+                    <div class="card-container">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Statistical Analysis</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Perform statistical analysis on the selected dataset.</p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn" id="statsBtn">Run Analysis</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Data Filtering</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Apply advanced filters to the dataset.</p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn" id="filterBtn">Apply Filters</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Download Full Dataset</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Download the complete dataset for offline analysis.</p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn" id="downloadBtn">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>The Solar Storm Prediction System is designed to predict solar storm events using machine learning algorithms and historical solar data.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="prediction.html">Prediction</a></li>
+                        <li><a href="visualization.html">Visualization</a></li>
+                        <li><a href="historical.html">Historical Data</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-phone"></i> 7559864002</p>
+                    <p><i class="fas fa-envelope"></i> muhammednakash23@gmail.com</p>
+                    <p><i class="fas fa-globe"></i> www.solarstormprediction.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Solar Storm Prediction System. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+
+        // Sample data for demonstration with multiple periods
+        const sampleData = {
+            labels: {
+                headers: ['Period', 'Time Delta', 'DST Index'],
+                rows: [
+                    // Training Period A
+                    ['train_a', '0 days 00:00:00', -7],
+                    ['train_a', '0 days 01:00:00', -10],
+                    ['train_a', '0 days 02:00:00', -10],
+                    ['train_a', '0 days 03:00:00', -6],
+                    ['train_a', '0 days 04:00:00', -2],
+                    ['train_a', '0 days 05:00:00', 0],
+                    ['train_a', '0 days 06:00:00', 2],
+                    ['train_a', '0 days 07:00:00', 5],
+                    ['train_a', '0 days 08:00:00', 3],
+                    ['train_a', '0 days 09:00:00', 0],
+                    // Training Period B
+                    ['train_b', '0 days 00:00:00', -15],
+                    ['train_b', '0 days 01:00:00', -18],
+                    ['train_b', '0 days 02:00:00', -20],
+                    ['train_b', '0 days 03:00:00', -25],
+                    ['train_b', '0 days 04:00:00', -30],
+                    ['train_b', '0 days 05:00:00', -28],
+                    ['train_b', '0 days 06:00:00', -25],
+                    ['train_b', '0 days 07:00:00', -20],
+                    ['train_b', '0 days 08:00:00', -15],
+                    ['train_b', '0 days 09:00:00', -10],
+                    // Test Period
+                    ['test', '0 days 00:00:00', -5],
+                    ['test', '0 days 01:00:00', -8],
+                    ['test', '0 days 02:00:00', -12],
+                    ['test', '0 days 03:00:00', -15],
+                    ['test', '0 days 04:00:00', -18],
+                    ['test', '0 days 05:00:00', -22],
+                    ['test', '0 days 06:00:00', -25],
+                    ['test', '0 days 07:00:00', -28],
+                    ['test', '0 days 08:00:00', -30],
+                    ['test', '0 days 09:00:00', -32]
+                ],
+                summary: 'The DST (Disturbance Storm Time) index dataset contains hourly measurements of the geomagnetic activity. Negative values indicate a more intense geomagnetic storm.'
+            },
+            satellite_pos: {
+                headers: ['Period', 'Time Delta', 'GSE X (ACE)', 'GSE Y (ACE)', 'GSE Z (ACE)', 'GSE X (DSCOVR)', 'GSE Y (DSCOVR)', 'GSE Z (DSCOVR)'],
+                rows: [
+                    // Training Period A
+                    ['train_a', '0 days', 1522376.9, 143704.6, 149496.7, null, null, null],
+                    ['train_a', '1 days', 1525410.9, 136108.8, 151034.1, null, null, null],
+                    ['train_a', '2 days', 1528484.9, 128470.5, 152387.7, null, null, null],
+                    ['train_a', '3 days', 1531570.3, 120818.4, 153561.4, null, null, null],
+                    ['train_a', '4 days', 1534633.1, 113178.5, 154534.6, null, null, null],
+                    ['train_a', '5 days', 1537652.2, 105551.3, 155307.2, null, null, null],
+                    ['train_a', '6 days', 1540626.7, 97937.9, 155879.1, null, null, null],
+                    ['train_a', '7 days', 1543555.7, 90338.3, 156250.3, null, null, null],
+                    ['train_a', '8 days', 1546438.2, 82752.5, 156421.0, null, null, null],
+                    ['train_a', '9 days', 1549273.3, 75180.5, 156391.2, null, null, null],
+                    // Training Period B
+                    ['train_b', '0 days', 1552060.0, 67622.6, 156161.0, 1552060.0, 67622.6, 156161.0],
+                    ['train_b', '1 days', 1554798.2, 60078.9, 155731.3, 1554798.2, 60078.9, 155731.3],
+                    ['train_b', '2 days', 1557487.8, 52549.5, 155102.2, 1557487.8, 52549.5, 155102.2],
+                    ['train_b', '3 days', 1560128.7, 45034.5, 154274.7, 1560128.7, 45034.5, 154274.7],
+                    ['train_b', '4 days', 1562720.8, 37533.9, 153249.9, 1562720.8, 37533.9, 153249.9],
+                    ['train_b', '5 days', 1565264.1, 30047.8, 152028.9, 1565264.1, 30047.8, 152028.9],
+                    ['train_b', '6 days', 1567758.5, 22576.2, 150612.8, 1567758.5, 22576.2, 150612.8],
+                    ['train_b', '7 days', 1570203.9, 15119.1, 149002.8, 1570203.9, 15119.1, 149002.8],
+                    ['train_b', '8 days', 1572600.3, 7676.6, 147200.0, 1572600.3, 7676.6, 147200.0],
+                    ['train_b', '9 days', 1574947.6, 248.7, 145206.6, 1574947.6, 248.7, 145206.6],
+                    // Test Period
+                    ['test', '0 days', 1577245.8, -7164.5, 143024.8, 1577245.8, -7164.5, 143024.8],
+                    ['test', '1 days', 1579494.9, -14562.9, 140656.8, 1579494.9, -14562.9, 140656.8],
+                    ['test', '2 days', 1581694.9, -21946.4, 138104.8, 1581694.9, -21946.4, 138104.8],
+                    ['test', '3 days', 1583845.8, -29315.0, 135371.0, 1583845.8, -29315.0, 135371.0],
+                    ['test', '4 days', 1585947.6, -36668.5, 132458.6, 1585947.6, -36668.5, 132458.6],
+                    ['test', '5 days', 1588000.3, -44007.0, 129370.0, 1588000.3, -44007.0, 129370.0],
+                    ['test', '6 days', 1590003.9, -51330.3, 126108.3, 1590003.9, -51330.3, 126108.3],
+                    ['test', '7 days', 1591958.4, -58638.5, 122676.8, 1591958.4, -58638.5, 122676.8],
+                    ['test', '8 days', 1593863.9, -65931.5, 119078.7, 1593863.9, -65931.5, 119078.7],
+                    ['test', '9 days', 1595720.3, -73209.3, 115317.3, 1595720.3, -73209.3, 115317.3]
+                ],
+                summary: 'The satellite position dataset contains the Geocentric Solar Ecliptic (GSE) coordinates of the ACE and DSCOVR satellites, which are used to monitor solar wind conditions.'
+            },
+            solar_wind: {
+                headers: ['Period', 'Time Delta', 'Bx GSE', 'By GSE', 'Bz GSE', 'Density', 'Speed', 'Temperature', 'Source'],
+                rows: [
+                    // Training Period A
+                    ['train_a', '0 days 00:00:00', -5.55, 3.00, 1.25, 1.53, 383.92, 110237.0, 'ac'],
+                    ['train_a', '0 days 00:01:00', -5.58, 3.16, 1.17, 1.69, 381.79, 123825.0, 'ac'],
+                    ['train_a', '0 days 00:02:00', -5.60, 3.20, 1.10, 1.75, 380.50, 125000.0, 'ac'],
+                    ['train_a', '0 days 00:03:00', -5.62, 3.25, 1.05, 1.80, 385.20, 126000.0, 'ac'],
+                    ['train_a', '0 days 00:04:00', -5.65, 3.30, 1.00, 1.85, 390.30, 127000.0, 'ac'],
+                    ['train_a', '0 days 00:05:00', -5.70, 3.35, 0.95, 1.90, 395.40, 128000.0, 'ac'],
+                    ['train_a', '0 days 00:06:00', -5.75, 3.40, 0.90, 1.95, 400.50, 129000.0, 'ac'],
+                    ['train_a', '0 days 00:07:00', -5.80, 3.45, 0.85, 2.00, 405.60, 130000.0, 'ac'],
+                    ['train_a', '0 days 00:08:00', -5.85, 3.50, 0.80, 2.05, 410.70, 131000.0, 'ac'],
+                    ['train_a', '0 days 00:09:00', -5.90, 3.55, 0.75, 2.10, 415.80, 132000.0, 'ac'],
+                    // Training Period B
+                    ['train_b', '0 days 00:00:00', -6.00, 3.60, 0.70, 2.15, 420.90, 133000.0, 'ac'],
+                    ['train_b', '0 days 00:01:00', -6.05, 3.65, 0.65, 2.20, 426.00, 134000.0, 'ac'],
+                    ['train_b', '0 days 00:02:00', -6.10, 3.70, 0.60, 2.25, 431.10, 135000.0, 'ac'],
+                    ['train_b', '0 days 00:03:00', -6.15, 3.75, 0.55, 2.30, 436.20, 136000.0, 'ac'],
+                    ['train_b', '0 days 00:04:00', -6.20, 3.80, 0.50, 2.35, 441.30, 137000.0, 'ac'],
+                    ['train_b', '0 days 00:05:00', -6.25, 3.85, 0.45, 2.40, 446.40, 138000.0, 'ac'],
+                    ['train_b', '0 days 00:06:00', -6.30, 3.90, 0.40, 2.45, 451.50, 139000.0, 'ac'],
+                    ['train_b', '0 days 00:07:00', -6.35, 3.95, 0.35, 2.50, 456.60, 140000.0, 'ac'],
+                    ['train_b', '0 days 00:08:00', -6.40, 4.00, 0.30, 2.55, 461.70, 141000.0, 'ac'],
+                    ['train_b', '0 days 00:09:00', -6.45, 4.05, 0.25, 2.60, 466.80, 142000.0, 'ac'],
+                    // Test Period
+                    ['test', '0 days 00:00:00', -6.50, 4.10, 0.20, 2.65, 471.90, 143000.0, 'ac'],
+                    ['test', '0 days 00:01:00', -6.55, 4.15, 0.15, 2.70, 477.00, 144000.0, 'ac'],
+                    ['test', '0 days 00:02:00', -6.60, 4.20, 0.10, 2.75, 482.10, 145000.0, 'ac'],
+                    ['test', '0 days 00:03:00', -6.65, 4.25, 0.05, 2.80, 487.20, 146000.0, 'ac'],
+                    ['test', '0 days 00:04:00', -6.70, 4.30, 0.00, 2.85, 492.30, 147000.0, 'ac'],
+                    ['test', '0 days 00:05:00', -6.75, 4.35, -0.05, 2.90, 497.40, 148000.0, 'ac'],
+                    ['test', '0 days 00:06:00', -6.80, 4.40, -0.10, 2.95, 502.50, 149000.0, 'ac'],
+                    ['test', '0 days 00:07:00', -6.85, 4.45, -0.15, 3.00, 507.60, 150000.0, 'ac'],
+                    ['test', '0 days 00:08:00', -6.90, 4.50, -0.20, 3.05, 512.70, 151000.0, 'ac'],
+                    ['test', '0 days 00:09:00', -6.95, 4.55, -0.25, 3.10, 517.80, 152000.0, 'ac']
+                ],
+                summary: 'The solar wind dataset contains measurements of the interplanetary magnetic field components, plasma density, speed, and temperature. These parameters are crucial for predicting geomagnetic storms.'
+            },
+            sunspots: {
+                headers: ['Period', 'Time Delta', 'Sunspot Number', 'Smoothed Sunspot Number'],
+                rows: [
+                    // Training Period A
+                    ['train_a', '0 days', 35, 32.5],
+                    ['train_a', '1 days', 42, 33.1],
+                    ['train_a', '2 days', 50, 33.8],
+                    ['train_a', '3 days', 55, 34.5],
+                    ['train_a', '4 days', 60, 35.2],
+                    ['train_a', '5 days', 65, 35.9],
+                    ['train_a', '6 days', 70, 36.6],
+                    ['train_a', '7 days', 75, 37.3],
+                    ['train_a', '8 days', 80, 38.0],
+                    ['train_a', '9 days', 85, 38.7],
+                    // Training Period B
+                    ['train_b', '0 days', 90, 39.4],
+                    ['train_b', '1 days', 95, 40.1],
+                    ['train_b', '2 days', 100, 40.8],
+                    ['train_b', '3 days', 105, 41.5],
+                    ['train_b', '4 days', 110, 42.2],
+                    ['train_b', '5 days', 115, 42.9],
+                    ['train_b', '6 days', 120, 43.6],
+                    ['train_b', '7 days', 125, 44.3],
+                    ['train_b', '8 days', 130, 45.0],
+                    ['train_b', '9 days', 135, 45.7],
+                    // Test Period
+                    ['test', '0 days', 140, 46.4],
+                    ['test', '1 days', 145, 47.1],
+                    ['test', '2 days', 150, 47.8],
+                    ['test', '3 days', 155, 48.5],
+                    ['test', '4 days', 160, 49.2],
+                    ['test', '5 days', 165, 49.9],
+                    ['test', '6 days', 170, 50.6],
+                    ['test', '7 days', 175, 51.3],
+                    ['test', '8 days', 180, 52.0],
+                    ['test', '9 days', 185, 52.7]
+                ],
+                summary: 'The sunspot dataset contains daily counts of sunspots and the smoothed sunspot number. Sunspot activity is a key indicator of solar activity and potential for solar storms.'
+            }
+        };
+
+        // Function to load data into the table
+        function loadData() {
+            // Show loading indicator
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const tableContainer = document.querySelector('.data-table-container');
+            
+            // Position the loading indicator relative to the table container
+            if (tableContainer) {
+                tableContainer.style.position = 'relative';
+                loadingIndicator.style.display = 'block';
+            }
+            
+            // Get selected options
+            const datasetType = document.getElementById('datasetSelect').value;
+            const period = document.getElementById('periodSelect').value;
+            
+            console.log(`Loading data for dataset: ${datasetType}, period: ${period}`);
+            
+            // Simulate network delay for demonstration purposes
+            setTimeout(() => {
+                try {
+                    // Get the data for the selected dataset
+                    const data = sampleData[datasetType];
+                    
+                    if (!data) {
+                        throw new Error(`Dataset "${datasetType}" not found`);
+                    }
+                    
+                    console.log(`Found dataset with ${data.rows.length} rows`);
+                    
+                    // Update the data summary
+                    document.getElementById('dataSummary').innerHTML = `
+                        <h3>Data Summary</h3>
+                        <p>${data.summary}</p>
+                        <p><strong>Total records:</strong> ${data.rows.length}</p>
+                    `;
+                    
+                    // Populate table headers
+                    const headerRow = document.getElementById('tableHeader');
+                    headerRow.innerHTML = '';
+                    data.headers.forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+                    
+                    // Populate table body
+                    const tableBody = document.getElementById('tableBody');
+                    tableBody.innerHTML = '';
+                    
+                    // Filter rows by period if needed
+                    let rowsToDisplay = data.rows;
+                    if (period !== 'all') {
+                        rowsToDisplay = data.rows.filter(row => row[0] === period);
+                        console.log(`Filtered to ${rowsToDisplay.length} rows for period: ${period}`);
+                    }
+                    
+                    if (rowsToDisplay.length === 0) {
+                        // Add a message row if no data is available
+                        const tr = document.createElement('tr');
+                        const td = document.createElement('td');
+                        td.textContent = 'No data available for this selection';
+                        td.colSpan = data.headers.length;
+                        td.style.textAlign = 'center';
+                        tr.appendChild(td);
+                        tableBody.appendChild(tr);
+                    } else {
+                        // Add data rows
+                        rowsToDisplay.forEach(row => {
+                            const tr = document.createElement('tr');
+                            row.forEach(cell => {
+                                const td = document.createElement('td');
+                                td.textContent = cell === null ? 'N/A' : cell;
+                                tr.appendChild(td);
+                            });
+                            tableBody.appendChild(tr);
+                        });
+                    }
+                    
+                    // Initialize DataTable with error handling
+                    try {
+                        // Check if jQuery and DataTables are available
+                        if (typeof $ === 'undefined' || typeof $.fn.DataTable === 'undefined') {
+                            throw new Error("jQuery or DataTables not loaded");
+                        }
+                        
+                        // Check if the table element exists
+                        const tableElement = document.getElementById('dataTable');
+                        if (!tableElement) {
+                            throw new Error("Table element not found");
+                        }
+                        
+                        // Destroy existing DataTable instance if it exists
+                        if ($.fn.DataTable.isDataTable('#dataTable')) {
+                            $('#dataTable').DataTable().destroy();
+                            console.log("Existing DataTable instance destroyed");
+                        }
+                        
+                        // Initialize new DataTable
+                        const dataTable = $('#dataTable').DataTable({
+                            paging: true,
+                            searching: true,
+                            ordering: true,
+                            info: true,
+                            pageLength: 10,
+                            lengthMenu: [10, 25, 50, 100],
+                            responsive: true,
+                            language: {
+                                emptyTable: "No data available for this selection",
+                                zeroRecords: "No matching records found",
+                                info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                                infoEmpty: "Showing 0 to 0 of 0 entries",
+                                infoFiltered: "(filtered from _MAX_ total entries)"
+                            },
+                            // Add error handling for DataTables
+                            drawCallback: function() {
+                                console.log("DataTable draw complete");
+                            },
+                            initComplete: function() {
+                                console.log("DataTable initialization complete");
+                            }
+                        });
+                        
+                        // Add success message
+                        console.log("DataTable initialized successfully");
+                    } catch (error) {
+                        console.error("Error initializing DataTable:", error);
+                        // Fallback to basic table styling if DataTables fails
+                        const tableElement = document.getElementById('dataTable');
+                        if (tableElement) {
+                            tableElement.classList.add('basic-table');
+                            console.log("Applied basic table styling as fallback");
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error("Error loading data:", error);
+                    document.getElementById('dataSummary').innerHTML = `
+                        <h3>Error</h3>
+                        <p class="error-message">An error occurred while loading the data: ${error.message}</p>
+                    `;
+                } finally {
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                }
+            }, 500); // 500ms delay for demonstration
+        }
+        
+        // Add event listeners for dataset and period selects
+        function setupSelectListeners() {
+            const datasetSelect = document.getElementById('datasetSelect');
+            const periodSelect = document.getElementById('periodSelect');
+            
+            if (datasetSelect && periodSelect) {
+                datasetSelect.addEventListener('change', function() {
+                    console.log(`Dataset changed to: ${this.value}`);
+                    // Auto-load data when dataset changes
+                    loadData();
+                });
+                
+                periodSelect.addEventListener('change', function() {
+                    console.log(`Period changed to: ${this.value}`);
+                    // Auto-load data when period changes
+                    loadData();
+                });
+            }
+        }
+        
+        // Initialize the data table on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM fully loaded, initializing data table");
+            
+            // Ensure the table elements exist before trying to load data
+            if (document.getElementById('tableHeader') && 
+                document.getElementById('tableBody') && 
+                document.getElementById('dataTable')) {
+                
+                // Add a slight delay to ensure all scripts are loaded
+                setTimeout(function() {
+                    // Setup select listeners
+                    setupSelectListeners();
+                    
+                    // Load initial data
+                    loadData();
+                    console.log("Initial data load triggered");
+                }, 300);
+            } else {
+                console.error("Required table elements not found in the DOM");
+            }
+        });
+        
+        // Load data when button is clicked
+        document.getElementById('loadDataBtn').addEventListener('click', function() {
+            console.log("Load Data button clicked");
+            
+            // Add a visual feedback for the button click
+            const button = this;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            button.disabled = true;
+            
+            // Load the data
+            loadData();
+            
+            // Reset the button after a short delay
+            setTimeout(function() {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }, 1000);
+        });
+        
+        // Export data functionality
+        document.getElementById('exportDataBtn').addEventListener('click', function() {
+            try {
+                const datasetType = document.getElementById('datasetSelect').value;
+                const period = document.getElementById('periodSelect').value;
+                const data = sampleData[datasetType];
+                
+                if (!data) {
+                    throw new Error(`Dataset "${datasetType}" not found`);
+                }
+                
+                // Filter rows by period if needed
+                let rowsToExport = data.rows;
+                if (period !== 'all') {
+                    rowsToExport = data.rows.filter(row => row[0] === period);
+                }
+                
+                if (rowsToExport.length === 0) {
+                    alert('No data available to export for this selection.');
+                    return;
+                }
+                
+                // Create CSV content
+                let csvContent = data.headers.join(',') + '\n';
+                
+                rowsToExport.forEach(row => {
+                    csvContent += row.map(cell => {
+                        // Handle null values and ensure proper CSV formatting
+                        if (cell === null) return 'N/A';
+                        if (typeof cell === 'string' && cell.includes(',')) {
+                            return `"${cell}"`;
+                        }
+                        return cell;
+                    }).join(',') + '\n';
+                });
+                
+                // Create a blob and download link
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `${datasetType}_${period}_data.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                console.log(`Exported ${rowsToExport.length} rows of ${datasetType} data as CSV.`);
+            } catch (error) {
+                console.error("Error exporting data:", error);
+                alert(`Error exporting data: ${error.message}`);
+            }
+        });
+        
+        // Statistical analysis functionality
+        document.getElementById('statsBtn').addEventListener('click', function() {
+            try {
+                const datasetType = document.getElementById('datasetSelect').value;
+                const period = document.getElementById('periodSelect').value;
+                const data = sampleData[datasetType];
+                
+                if (!data) {
+                    throw new Error(`Dataset "${datasetType}" not found`);
+                }
+                
+                // Filter rows by period if needed
+                let rowsToAnalyze = data.rows;
+                if (period !== 'all') {
+                    rowsToAnalyze = data.rows.filter(row => row[0] === period);
+                }
+                
+                if (rowsToAnalyze.length === 0) {
+                    alert('No data available to analyze for this selection.');
+                    return;
+                }
+                
+                // Create a modal for the statistical analysis
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '1000';
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.backgroundColor = 'white';
+                modalContent.style.padding = '20px';
+                modalContent.style.borderRadius = '5px';
+                modalContent.style.maxWidth = '800px';
+                modalContent.style.width = '90%';
+                modalContent.style.maxHeight = '80vh';
+                modalContent.style.overflowY = 'auto';
+                
+                // Add close button
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Close';
+                closeButton.className = 'btn';
+                closeButton.style.float = 'right';
+                closeButton.onclick = function() {
+                    document.body.removeChild(modal);
+                };
+                
+                // Add title
+                const title = document.createElement('h3');
+                title.textContent = `Statistical Analysis: ${datasetType} Dataset${period !== 'all' ? ` (${period})` : ''}`;
+                
+                // Calculate statistics for each numeric column
+                const stats = {};
+                
+                // Skip the first two columns (Period and Time Delta)
+                for (let i = 2; i < data.headers.length; i++) {
+                    const columnName = data.headers[i];
+                    const columnValues = rowsToAnalyze.map(row => row[i]).filter(val => val !== null && !isNaN(val));
+                    
+                    if (columnValues.length > 0) {
+                        // Calculate basic statistics
+                        const sum = columnValues.reduce((a, b) => a + b, 0);
+                        const mean = sum / columnValues.length;
+                        const min = Math.min(...columnValues);
+                        const max = Math.max(...columnValues);
+                        const sortedValues = [...columnValues].sort((a, b) => a - b);
+                        const median = sortedValues.length % 2 === 0 
+                            ? (sortedValues[sortedValues.length / 2 - 1] + sortedValues[sortedValues.length / 2]) / 2
+                            : sortedValues[Math.floor(sortedValues.length / 2)];
+                        
+                        // Calculate standard deviation
+                        const squaredDiffs = columnValues.map(value => Math.pow(value - mean, 2));
+                        const variance = squaredDiffs.reduce((a, b) => a + b, 0) / columnValues.length;
+                        const stdDev = Math.sqrt(variance);
+                        
+                        stats[columnName] = {
+                            count: columnValues.length,
+                            mean: mean,
+                            median: median,
+                            min: min,
+                            max: max,
+                            stdDev: stdDev
+                        };
+                    }
+                }
+                
+                // Create statistics table
+                const table = document.createElement('table');
+                table.style.width = '100%';
+                table.style.borderCollapse = 'collapse';
+                table.style.marginTop = '20px';
+                
+                // Add table header
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                
+                const statNames = ['Column', 'Count', 'Mean', 'Median', 'Min', 'Max', 'Std Dev'];
+                statNames.forEach(name => {
+                    const th = document.createElement('th');
+                    th.textContent = name;
+                    th.style.padding = '8px';
+                    th.style.backgroundColor = '#f2f2f2';
+                    th.style.border = '1px solid #ddd';
+                    th.style.textAlign = 'left';
+                    headerRow.appendChild(th);
+                });
+                
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                // Add table body
+                const tbody = document.createElement('tbody');
+                
+                Object.entries(stats).forEach(([columnName, columnStats]) => {
+                    const row = document.createElement('tr');
+                    
+                    // Column name
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = columnName;
+                    nameCell.style.padding = '8px';
+                    nameCell.style.border = '1px solid #ddd';
+                    row.appendChild(nameCell);
+                    
+                    // Count
+                    const countCell = document.createElement('td');
+                    countCell.textContent = columnStats.count;
+                    countCell.style.padding = '8px';
+                    countCell.style.border = '1px solid #ddd';
+                    row.appendChild(countCell);
+                    
+                    // Mean
+                    const meanCell = document.createElement('td');
+                    meanCell.textContent = columnStats.mean.toFixed(2);
+                    meanCell.style.padding = '8px';
+                    meanCell.style.border = '1px solid #ddd';
+                    row.appendChild(meanCell);
+                    
+                    // Median
+                    const medianCell = document.createElement('td');
+                    medianCell.textContent = columnStats.median.toFixed(2);
+                    medianCell.style.padding = '8px';
+                    medianCell.style.border = '1px solid #ddd';
+                    row.appendChild(medianCell);
+                    
+                    // Min
+                    const minCell = document.createElement('td');
+                    minCell.textContent = columnStats.min.toFixed(2);
+                    minCell.style.padding = '8px';
+                    minCell.style.border = '1px solid #ddd';
+                    row.appendChild(minCell);
+                    
+                    // Max
+                    const maxCell = document.createElement('td');
+                    maxCell.textContent = columnStats.max.toFixed(2);
+                    maxCell.style.padding = '8px';
+                    maxCell.style.border = '1px solid #ddd';
+                    row.appendChild(maxCell);
+                    
+                    // Std Dev
+                    const stdDevCell = document.createElement('td');
+                    stdDevCell.textContent = columnStats.stdDev.toFixed(2);
+                    stdDevCell.style.padding = '8px';
+                    stdDevCell.style.border = '1px solid #ddd';
+                    row.appendChild(stdDevCell);
+                    
+                    tbody.appendChild(row);
+                });
+                
+                table.appendChild(tbody);
+                
+                // Add elements to modal
+                modalContent.appendChild(closeButton);
+                modalContent.appendChild(title);
+                modalContent.appendChild(table);
+                
+                // Add a note about the statistics
+                const note = document.createElement('p');
+                note.style.marginTop = '20px';
+                note.style.fontSize = '14px';
+                note.style.color = '#666';
+                note.textContent = 'Note: Statistics are calculated only for numeric columns. Non-numeric values and null values are excluded from calculations.';
+                modalContent.appendChild(note);
+                
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+            } catch (error) {
+                console.error("Error performing statistical analysis:", error);
+                alert(`Error performing statistical analysis: ${error.message}`);
+            }
+        });
+        
+        document.getElementById('filterBtn').addEventListener('click', function() {
+            try {
+                const datasetType = document.getElementById('datasetSelect').value;
+                const data = sampleData[datasetType];
+                
+                if (!data) {
+                    throw new Error(`Dataset "${datasetType}" not found`);
+                }
+                
+                // Create a modal for the filter options
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '1000';
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.backgroundColor = 'white';
+                modalContent.style.padding = '20px';
+                modalContent.style.borderRadius = '5px';
+                modalContent.style.maxWidth = '600px';
+                modalContent.style.width = '90%';
+                
+                // Add title
+                const title = document.createElement('h3');
+                title.textContent = 'Advanced Data Filtering';
+                
+                // Add description
+                const description = document.createElement('p');
+                description.textContent = 'Use the options below to filter the data based on specific criteria.';
+                
+                // Create filter form
+                const form = document.createElement('form');
+                form.id = 'filterForm';
+                
+                // Column selection
+                const columnGroup = document.createElement('div');
+                columnGroup.style.marginBottom = '15px';
+                
+                const columnLabel = document.createElement('label');
+                columnLabel.textContent = 'Select Column:';
+                columnLabel.style.display = 'block';
+                columnLabel.style.marginBottom = '5px';
+                columnLabel.style.fontWeight = 'bold';
+                
+                const columnSelect = document.createElement('select');
+                columnSelect.id = 'filterColumn';
+                columnSelect.style.width = '100%';
+                columnSelect.style.padding = '8px';
+                columnSelect.style.borderRadius = '4px';
+                columnSelect.style.border = '1px solid #ddd';
+                
+                // Add numeric columns only (skip Period and Time Delta)
+                for (let i = 2; i < data.headers.length; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = data.headers[i];
+                    columnSelect.appendChild(option);
+                }
+                
+                columnGroup.appendChild(columnLabel);
+                columnGroup.appendChild(columnSelect);
+                form.appendChild(columnGroup);
+                
+                // Operator selection
+                const operatorGroup = document.createElement('div');
+                operatorGroup.style.marginBottom = '15px';
+                
+                const operatorLabel = document.createElement('label');
+                operatorLabel.textContent = 'Select Operator:';
+                operatorLabel.style.display = 'block';
+                operatorLabel.style.marginBottom = '5px';
+                operatorLabel.style.fontWeight = 'bold';
+                
+                const operatorSelect = document.createElement('select');
+                operatorSelect.id = 'filterOperator';
+                operatorSelect.style.width = '100%';
+                operatorSelect.style.padding = '8px';
+                operatorSelect.style.borderRadius = '4px';
+                operatorSelect.style.border = '1px solid #ddd';
+                
+                const operators = [
+                    { value: 'eq', text: 'Equal to (=)' },
+                    { value: 'gt', text: 'Greater than (>)' },
+                    { value: 'lt', text: 'Less than (<)' },
+                    { value: 'gte', text: 'Greater than or equal to (>=)' },
+                    { value: 'lte', text: 'Less than or equal to (<=)' },
+                    { value: 'neq', text: 'Not equal to (!=)' }
+                ];
+                
+                operators.forEach(op => {
+                    const option = document.createElement('option');
+                    option.value = op.value;
+                    option.textContent = op.text;
+                    operatorSelect.appendChild(option);
+                });
+                
+                operatorGroup.appendChild(operatorLabel);
+                operatorGroup.appendChild(operatorSelect);
+                form.appendChild(operatorGroup);
+                
+                // Value input
+                const valueGroup = document.createElement('div');
+                valueGroup.style.marginBottom = '15px';
+                
+                const valueLabel = document.createElement('label');
+                valueLabel.textContent = 'Enter Value:';
+                valueLabel.style.display = 'block';
+                valueLabel.style.marginBottom = '5px';
+                valueLabel.style.fontWeight = 'bold';
+                
+                const valueInput = document.createElement('input');
+                valueInput.type = 'number';
+                valueInput.id = 'filterValue';
+                valueInput.style.width = '100%';
+                valueInput.style.padding = '8px';
+                valueInput.style.borderRadius = '4px';
+                valueInput.style.border = '1px solid #ddd';
+                valueInput.step = 'any'; // Allow decimal values
+                
+                valueGroup.appendChild(valueLabel);
+                valueGroup.appendChild(valueInput);
+                form.appendChild(valueGroup);
+                
+                // Button group
+                const buttonGroup = document.createElement('div');
+                buttonGroup.style.display = 'flex';
+                buttonGroup.style.justifyContent = 'space-between';
+                buttonGroup.style.marginTop = '20px';
+                
+                // Apply filter button
+                const applyButton = document.createElement('button');
+                applyButton.type = 'button';
+                applyButton.className = 'btn';
+                applyButton.textContent = 'Apply Filter';
+                applyButton.onclick = function() {
+                    const columnIndex = parseInt(document.getElementById('filterColumn').value);
+                    const operator = document.getElementById('filterOperator').value;
+                    const value = parseFloat(document.getElementById('filterValue').value);
+                    
+                    if (isNaN(value)) {
+                        alert('Please enter a valid numeric value.');
+                        return;
+                    }
+                    
+                    // Apply the filter
+                    let filteredRows = data.rows.filter(row => {
+                        const cellValue = row[columnIndex];
+                        if (cellValue === null || isNaN(cellValue)) return false;
+                        
+                        switch (operator) {
+                            case 'eq': return cellValue === value;
+                            case 'gt': return cellValue > value;
+                            case 'lt': return cellValue < value;
+                            case 'gte': return cellValue >= value;
+                            case 'lte': return cellValue <= value;
+                            case 'neq': return cellValue !== value;
+                            default: return true;
+                        }
+                    });
+                    
+                    // Update the table with filtered data
+                    const tableBody = document.getElementById('tableBody');
+                    tableBody.innerHTML = '';
+                    
+                    if (filteredRows.length === 0) {
+                        const tr = document.createElement('tr');
+                        const td = document.createElement('td');
+                        td.textContent = 'No data matches the filter criteria';
+                        td.colSpan = data.headers.length;
+                        td.style.textAlign = 'center';
+                        tr.appendChild(td);
+                        tableBody.appendChild(tr);
+                    } else {
+                        filteredRows.forEach(row => {
+                            const tr = document.createElement('tr');
+                            row.forEach(cell => {
+                                const td = document.createElement('td');
+                                td.textContent = cell === null ? 'N/A' : cell;
+                                tr.appendChild(td);
+                            });
+                            tableBody.appendChild(tr);
+                        });
+                    }
+                    
+                    // Update the data summary
+                    document.getElementById('dataSummary').innerHTML = `
+                        <h3>Filtered Data Summary</h3>
+                        <p>${data.summary}</p>
+                        <p><strong>Filter applied:</strong> ${data.headers[columnIndex]} ${operators.find(op => op.value === operator).text.replace(/\(.*\)/, '')} ${value}</p>
+                        <p><strong>Matching records:</strong> ${filteredRows.length} out of ${data.rows.length}</p>
+                    `;
+                    
+                    // Reinitialize DataTable
+                    try {
+                        if ($.fn.DataTable.isDataTable('#dataTable')) {
+                            $('#dataTable').DataTable().destroy();
+                        }
+                        
+                        $('#dataTable').DataTable({
+                            paging: true,
+                            searching: true,
+                            ordering: true,
+                            info: true,
+                            pageLength: 10,
+                            lengthMenu: [10, 25, 50, 100],
+                            responsive: true
+                        });
+                    } catch (error) {
+                        console.error("Error reinitializing DataTable:", error);
+                    }
+                    
+                    // Close the modal
+                    document.body.removeChild(modal);
+                };
+                
+                // Cancel button
+                const cancelButton = document.createElement('button');
+                cancelButton.type = 'button';
+                cancelButton.className = 'btn';
+                cancelButton.textContent = 'Cancel';
+                cancelButton.style.backgroundColor = '#6c757d';
+                cancelButton.onclick = function() {
+                    document.body.removeChild(modal);
+                };
+                
+                // Reset button
+                const resetButton = document.createElement('button');
+                resetButton.type = 'button';
+                resetButton.className = 'btn';
+                resetButton.textContent = 'Reset Filters';
+                resetButton.style.backgroundColor = '#dc3545';
+                resetButton.onclick = function() {
+                    loadData(); // Reload the original data
+                    document.body.removeChild(modal);
+                };
+                
+                buttonGroup.appendChild(resetButton);
+                buttonGroup.appendChild(cancelButton);
+                buttonGroup.appendChild(applyButton);
+                form.appendChild(buttonGroup);
+                
+                // Add elements to modal
+                modalContent.appendChild(title);
+                modalContent.appendChild(description);
+                modalContent.appendChild(form);
+                
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+            } catch (error) {
+                console.error("Error setting up filters:", error);
+                alert(`Error setting up filters: ${error.message}`);
+            }
+        });
+        
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            try {
+                const datasetType = document.getElementById('datasetSelect').value;
+                const data = sampleData[datasetType];
+                
+                if (!data) {
+                    throw new Error(`Dataset "${datasetType}" not found`);
+                }
+                
+                // Create a loading indicator
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                loadingIndicator.style.display = 'block';
+                
+                // Simulate a delay for larger dataset download
+                setTimeout(() => {
+                    try {
+                        // Create CSV content with all data
+                        let csvContent = data.headers.join(',') + '\n';
+                        
+                        data.rows.forEach(row => {
+                            csvContent += row.map(cell => {
+                                // Handle null values and ensure proper CSV formatting
+                                if (cell === null) return 'N/A';
+                                if (typeof cell === 'string' && cell.includes(',')) {
+                                    return `"${cell}"`;
+                                }
+                                return cell;
+                            }).join(',') + '\n';
+                        });
+                        
+                        // Create a blob and download link
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.setAttribute('href', url);
+                        link.setAttribute('download', `${datasetType}_complete_dataset.csv`);
+                        link.style.visibility = 'hidden';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        console.log(`Downloaded complete ${datasetType} dataset with ${data.rows.length} rows.`);
+                        
+                        // Show success message
+                        alert(`Successfully downloaded the complete ${datasetType} dataset with ${data.rows.length} rows.`);
+                    } catch (error) {
+                        console.error("Error downloading dataset:", error);
+                        alert(`Error downloading dataset: ${error.message}`);
+                    } finally {
+                        // Hide loading indicator
+                        loadingIndicator.style.display = 'none';
+                    }
+                }, 1000); // 1 second delay to simulate download preparation
+                
+            } catch (error) {
+                console.error("Error downloading dataset:", error);
+                alert(`Error downloading dataset: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>

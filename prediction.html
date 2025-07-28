@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Storm Prediction System - Prediction</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="dashboard.html" class="logo">Solar<span>Storm</span>Prediction</a>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="prediction.html" class="active">Prediction</a></li>
+                    <li><a href="visualization.html">Visualization</a></li>
+                    <li><a href="historical.html">Historical Data</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="prediction-module">
+                <div class="dashboard-header">
+                    <h2>Solar Storm Prediction</h2>
+                    <p>Use our advanced machine learning model to predict solar storm events based on current solar data.</p>
+                </div>
+
+                <div class="prediction-form">
+                    <h3>Input Parameters</h3>
+                    <form id="predictionForm">
+                        <div class="form-group">
+                            <label for="bx_gse">Magnetic Field (Bx GSE)</label>
+                            <input type="number" id="bx_gse" name="bx_gse" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="by_gse">Magnetic Field (By GSE)</label>
+                            <input type="number" id="by_gse" name="by_gse" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bz_gse">Magnetic Field (Bz GSE)</label>
+                            <input type="number" id="bz_gse" name="bz_gse" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="density">Plasma Density (n/cc)</label>
+                            <input type="number" id="density" name="density" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="speed">Solar Wind Speed (km/s)</label>
+                            <input type="number" id="speed" name="speed" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="temperature">Temperature (K)</label>
+                            <input type="number" id="temperature" name="temperature" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn">Predict Solar Storm</button>
+                            <button type="button" id="loadSampleBtn" class="btn" style="margin-left: 10px;">Load Sample Data</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="prediction-result" id="predictionResult" style="display: none;">
+                    <h3>Prediction Results</h3>
+                    <div id="resultContent">
+                        <!-- Results will be displayed here -->
+                    </div>
+                    <div class="chart-container" style="margin-top: 20px;">
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>The Solar Storm Prediction System is designed to predict solar storm events using machine learning algorithms and historical solar data.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="prediction.html">Prediction</a></li>
+                        <li><a href="visualization.html">Visualization</a></li>
+                        <li><a href="historical.html">Historical Data</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Solar Street, Space City</p>
+                    <p><i class="fas fa-phone"></i> +1 234 567 8900</p>
+                    <p><i class="fas fa-envelope"></i> info@solarstorm.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Solar Storm Prediction System. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+
+        // Load sample data
+        document.getElementById('loadSampleBtn').addEventListener('click', function() {
+            document.getElementById('bx_gse').value = '-5.55';
+            document.getElementById('by_gse').value = '3.00';
+            document.getElementById('bz_gse').value = '1.25';
+            document.getElementById('density').value = '1.53';
+            document.getElementById('speed').value = '383.92';
+            document.getElementById('temperature').value = '110237';
+        });
+
+        // Handle form submission
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const bx_gse = parseFloat(document.getElementById('bx_gse').value);
+            const by_gse = parseFloat(document.getElementById('by_gse').value);
+            const bz_gse = parseFloat(document.getElementById('bz_gse').value);
+            const density = parseFloat(document.getElementById('density').value);
+            const speed = parseFloat(document.getElementById('speed').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            
+            // In a real application, you would send this data to a backend API
+            // For demo purposes, we'll simulate a prediction result
+            
+            // Show loading state
+            const resultDiv = document.getElementById('predictionResult');
+            resultDiv.style.display = 'block';
+            document.getElementById('resultContent').innerHTML = '<p>Processing prediction...</p>';
+            
+            // Simulate API call delay
+            setTimeout(function() {
+                // Calculate a mock prediction (this would be done by your ML model in reality)
+                const bt = Math.sqrt(bx_gse*bx_gse + by_gse*by_gse + bz_gse*bz_gse);
+                const stormProbability = calculateStormProbability(bt, bz_gse, speed, density);
+                const stormClass = getStormClass(stormProbability);
+                
+                // Display results
+                console.log("Storm Class:", stormClass);
+                console.log("Storm Probability:", stormProbability);
+                console.log("Bt value:", bt);
+                
+                // Create a completely new HTML structure with stronger styling
+                let resultHTML = `
+                    <div class="result-container" style="width: 100%;">
+                        <!-- Summary Section -->
+                        <div class="result-summary" style="background-color: #f0f8ff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #4285f4; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <h4 style="color: #4285f4; margin-top: 0; margin-bottom: 15px; font-size: 1.3rem;">Storm Prediction Summary</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <p style="margin: 8px 0;"><strong>Storm Probability:</strong> <span style="color: #e63946; font-weight: bold;">${stormProbability.toFixed(2)}%</span></p>
+                                    <p style="margin: 8px 0;"><strong>Storm Classification:</strong> <span style="color: #2a9d8f; font-weight: bold;">${stormClass.name}</span></p>
+                                </div>
+                                <div style="flex: 1; min-width: 200px;">
+                                    <p style="margin: 8px 0;"><strong>Potential Impact:</strong> <span style="color: #e76f51;">${stormClass.impact}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Detailed Analysis Section -->
+                        <div class="result-details" style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 5px solid #34a853; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <h4 style="color: #34a853; margin-top: 0; margin-bottom: 15px; font-size: 1.3rem;">Detailed Analysis</h4>
+                            <p style="line-height: 1.6; margin-bottom: 12px;">Based on the provided solar wind parameters, our model predicts a <strong>${stormClass.name.toLowerCase()}</strong> solar storm event with a probability of <strong>${stormProbability.toFixed(2)}%</strong>.</p>
+                            <p style="line-height: 1.6; margin-bottom: 12px;">The total magnetic field strength (Bt) is calculated to be <strong>${bt.toFixed(2)} nT</strong>.</p>
+                            <p style="line-height: 1.6; margin-bottom: 12px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;">${stormClass.description}</p>
+                            
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                                <h5 style="color: #666; margin-bottom: 10px;">Parameter Contributions:</h5>
+                                <ul style="list-style-type: none; padding-left: 0;">
+                                    <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 200px;"><strong>Magnetic Field Strength:</strong></span> ${(bt * 2).toFixed(1)} points</li>
+                                    <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 200px;"><strong>Bz GSE Contribution:</strong></span> ${bz_gse < 0 ? (Math.abs(bz_gse) * 5).toFixed(1) : '0.0'} points</li>
+                                    <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 200px;"><strong>Solar Wind Speed:</strong></span> ${((speed - 300) / 10).toFixed(1)} points</li>
+                                    <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 200px;"><strong>Plasma Density:</strong></span> ${(density * 2).toFixed(1)} points</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('resultContent').innerHTML = resultHTML;
+                
+                // Create a chart to visualize the prediction
+                createPredictionChart(stormProbability);
+                
+            }, 1500); // Simulate 1.5 second delay for processing
+        });
+        
+        // Function to calculate a mock storm probability
+        function calculateStormProbability(bt, bz_gse, speed, density) {
+            // This is a simplified mock calculation
+            // In reality, this would be based on your trained ML model
+            let probability = 0;
+            
+            // Stronger magnetic fields increase probability
+            probability += bt * 2;
+            
+            // Negative Bz is more geoeffective
+            if (bz_gse < 0) {
+                probability += Math.abs(bz_gse) * 5;
+            }
+            
+            // Higher speeds increase probability
+            probability += (speed - 300) / 10;
+            
+            // Higher density can increase probability
+            probability += density * 2;
+            
+            // Cap at 100%
+            probability = Math.min(Math.max(probability, 0), 100);
+            
+            return probability;
+        }
+        
+        // Function to classify the storm based on probability
+        function getStormClass(probability) {
+            if (probability < 20) {
+                return {
+                    name: "Quiet",
+                    impact: "Minimal to none",
+                    description: "Solar conditions are quiet. No significant disturbances expected."
+                };
+            } else if (probability < 40) {
+                return {
+                    name: "Minor Storm",
+                    impact: "Weak power grid fluctuations, minor impact on satellites",
+                    description: "A minor geomagnetic storm may occur. Possible aurora at high latitudes."
+                };
+            } else if (probability < 60) {
+                return {
+                    name: "Moderate Storm",
+                    impact: "Power system voltage corrections, satellite orientation irregularities",
+                    description: "A moderate geomagnetic storm is likely. Aurora may be visible at mid-latitudes."
+                };
+            } else if (probability < 80) {
+                return {
+                    name: "Strong Storm",
+                    impact: "Possible widespread voltage control issues, some grid systems may experience protective device tripping",
+                    description: "A strong geomagnetic storm is predicted. Significant aurora activity and potential radio blackouts."
+                };
+            } else {
+                return {
+                    name: "Severe Storm",
+                    impact: "Grid system voltage collapse, transformer damage, widespread blackouts possible",
+                    description: "A severe geomagnetic storm is highly likely. Extensive aurora, significant radio blackouts, and satellite navigation degradation expected."
+                };
+            }
+        }
+        
+        // Function to create a chart for the prediction
+        function createPredictionChart(probability) {
+            const ctx = document.getElementById('predictionChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.predictionChart) {
+                window.predictionChart.destroy();
+            }
+            
+            // Create data for the gauge chart
+            const data = {
+                labels: ['Quiet', 'Minor', 'Moderate', 'Strong', 'Severe'],
+                datasets: [{
+                    label: 'Storm Probability',
+                    data: [
+                        probability < 20 ? probability : 20,
+                        probability >= 20 && probability < 40 ? probability - 20 : (probability < 20 ? 0 : 20),
+                        probability >= 40 && probability < 60 ? probability - 40 : (probability < 40 ? 0 : 20),
+                        probability >= 60 && probability < 80 ? probability - 60 : (probability < 60 ? 0 : 20),
+                        probability >= 80 ? probability - 80 : 0
+                    ],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(255, 99, 132, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            
+            // Create the chart
+            window.predictionChart = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Solar Storm Probability Distribution'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 20,
+                            title: {
+                                display: true,
+                                text: 'Probability Contribution'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Storm Category'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

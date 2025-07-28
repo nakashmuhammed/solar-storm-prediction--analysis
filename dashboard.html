@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Storm Prediction System - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="dashboard.html" class="logo">Solar<span>Storm</span>Prediction</a>
+                <button class="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="prediction.html">Prediction</a></li>
+                    <li><a href="visualization.html">Visualization</a></li>
+                    <li><a href="historical.html">Historical Data</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="dashboard">
+                <div class="dashboard-header">
+                    <h2>Welcome, <span id="username">User</span>!</h2>
+                    <p>Here's an overview of your solar storm prediction system.</p>
+                </div>
+
+                <div class="card-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-bolt"></i> Solar Storm Prediction</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Predict solar storm events using our advanced machine learning algorithms.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="prediction.html" class="btn">Go to Prediction</a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-chart-line"></i> Data Visualization</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Visualize solar data and storm patterns with interactive charts.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="visualization.html" class="btn">View Charts</a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-database"></i> Historical Data</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Access and analyze historical solar storm data from our database.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="historical.html" class="btn">View Data</a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-user-circle"></i> User Profile</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Manage your account settings and preferences.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="profile.html" class="btn">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prediction-module animate-on-scroll" data-animation="fadeIn">
+                    <h3>Recent Solar Activity</h3>
+                    <div class="chart-container">
+                        <canvas id="solarActivityChart"></canvas>
+                    </div>
+                    <div class="solar-info animate-on-scroll" data-animation="slideUp" style="margin-top: 2rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--dark-color);">Current Solar Cycle Status</h4>
+                        <p style="color: var(--text-light); line-height: 1.7;">
+                            We are currently in <strong>Solar Cycle 25</strong>, which began in December 2019. 
+                            Solar activity is expected to peak between 2024 and 2025, increasing the likelihood 
+                            of solar storms during this period.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="solar-animation"></div>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>The Solar Storm Prediction System is designed to predict solar storm events using machine learning algorithms and historical solar data.</p>
+                    <p>Our mission is to provide accurate and timely predictions to help protect critical infrastructure and technologies from the impacts of solar storms.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="prediction.html">Prediction</a></li>
+                        <li><a href="visualization.html">Visualization</a></li>
+                        <li><a href="historical.html">Historical Data</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-phone"></i> 7559864002</p>
+                    <p><i class="fas fa-envelope"></i> muhammednakash23@gmail.com</p>
+                    <p><i class="fas fa-globe"></i> www.solarstormprediction.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Solar Storm Prediction System. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Initialize solar activity chart when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the chart canvas
+            const ctx = document.getElementById('solarActivityChart');
+            
+            if (ctx) {
+                // Sample data for the last 14 days
+                const dates = [];
+                const today = new Date();
+                
+                for (let i = 13; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(today.getDate() - i);
+                    dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                }
+                
+                // Sample solar activity data (sunspot numbers)
+                const sunspotData = [78, 82, 85, 89, 92, 95, 98, 102, 105, 108, 112, 115, 118, 120];
+                
+                // Sample solar flare data (number of flares)
+                const flareData = [3, 2, 4, 5, 3, 6, 8, 7, 5, 9, 6, 8, 10, 7];
+                
+                // Create the chart
+                const solarActivityChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Sunspot Number',
+                                data: sunspotData,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                fill: true,
+                                tension: 0.4,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Solar Flares',
+                                data: flareData,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                fill: true,
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Solar Activity (Last 14 Days)'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Sunspot Number'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Number of Flares'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

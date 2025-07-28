@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Storm Prediction System - User Profile</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="dashboard.html" class="logo">Solar<span>Storm</span>Prediction</a>
+                <ul class="nav-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="prediction.html">Prediction</a></li>
+                    <li><a href="visualization.html">Visualization</a></li>
+                    <li><a href="historical.html">Historical Data</a></li>
+                    <li><a href="profile.html" class="active">Profile</a></li>
+                    <li><a href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="profile-module">
+                <div class="dashboard-header">
+                    <h2>User Profile</h2>
+                    <p>Manage your account settings and preferences.</p>
+                </div>
+
+                <div class="profile-header">
+                    <img src="https://via.placeholder.com/100" alt="Profile Avatar" class="profile-avatar">
+                    <div class="profile-info">
+                        <h3 id="profileName">Muhammed Nakash Latheef</h3>
+                        <p id="profileEmail">muhammednakash23@gmail.com</p>
+                        <p id="profileRole">Administrator</p>
+                    </div>
+                </div>
+
+                <div class="profile-tabs">
+                    <ul class="nav-tabs">
+                        <li><a href="#personal-info" class="active" data-tab="personal-info">Personal Information</a></li>
+                        <li><a href="#account-settings" data-tab="account-settings">Account Settings</a></li>
+                        <li><a href="#notification-settings" data-tab="notification-settings">Notification Settings</a></li>
+                        <li><a href="#activity-log" data-tab="activity-log">Activity Log</a></li>
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+                    <div id="personal-info" class="tab-pane active">
+                        <h3>Personal Information</h3>
+                        <form id="personalInfoForm">
+                            <div class="form-group">
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" name="fullName" class="form-control" value="Muhammed Nakash Latheef">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" class="form-control" value="muhammednakash23@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" class="form-control" value="7559864002">
+                            </div>
+                            <div class="form-group">
+                                <label for="organization">Organization</label>
+                                <input type="text" id="organization" name="organization" class="form-control" value="Solar Research Institute">
+                            </div>
+                            <div class="form-group">
+                                <label for="position">Position</label>
+                                <input type="text" id="position" name="position" class="form-control" value="Research Scientist">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="account-settings" class="tab-pane">
+                        <h3>Account Settings</h3>
+                        <form id="accountSettingsForm">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" class="form-control" value="nakash" disabled>
+                                <small>Username cannot be changed</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="currentPassword">Current Password</label>
+                                <input type="password" id="currentPassword" name="currentPassword" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword" name="newPassword" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm New Password</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn">Update Password</button>
+                            </div>
+                        </form>
+                        
+                        <div class="account-danger-zone">
+                            <h4>Danger Zone</h4>
+                            <p>These actions are irreversible. Please proceed with caution.</p>
+                            <button class="btn" style="background-color: var(--danger-color);">Delete Account</button>
+                        </div>
+                    </div>
+
+                    <div id="notification-settings" class="tab-pane">
+                        <h3>Notification Settings</h3>
+                        <form id="notificationSettingsForm">
+                            <div class="form-group">
+                                <label>Email Notifications</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="emailStormAlerts" name="emailStormAlerts" checked>
+                                        <label for="emailStormAlerts">Solar Storm Alerts</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="emailWeeklyReports" name="emailWeeklyReports" checked>
+                                        <label for="emailWeeklyReports">Weekly Solar Activity Reports</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="emailSystemUpdates" name="emailSystemUpdates" checked>
+                                        <label for="emailSystemUpdates">System Updates</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>SMS Notifications</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="smsStormAlerts" name="smsStormAlerts" checked>
+                                        <label for="smsStormAlerts">Solar Storm Alerts</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="smsWeeklyReports" name="smsWeeklyReports">
+                                        <label for="smsWeeklyReports">Weekly Solar Activity Reports</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="smsSystemUpdates" name="smsSystemUpdates">
+                                        <label for="smsSystemUpdates">System Updates</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Alert Thresholds</label>
+                                <div class="form-group">
+                                    <label for="stormThreshold">Storm Intensity Threshold</label>
+                                    <select id="stormThreshold" name="stormThreshold" class="form-control">
+                                        <option value="minor">Minor Storms and Above</option>
+                                        <option value="moderate" selected>Moderate Storms and Above</option>
+                                        <option value="strong">Strong Storms and Above</option>
+                                        <option value="severe">Severe Storms Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn">Save Notification Settings</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="activity-log" class="tab-pane">
+                        <h3>Activity Log</h3>
+                        <div class="activity-filters">
+                            <div class="form-group">
+                                <label for="activityType">Activity Type</label>
+                                <select id="activityType" class="form-control">
+                                    <option value="all">All Activities</option>
+                                    <option value="login">Login/Logout</option>
+                                    <option value="prediction">Predictions</option>
+                                    <option value="data">Data Access</option>
+                                    <option value="settings">Settings Changes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button id="filterActivityBtn" class="btn">Filter</button>
+                            </div>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-sign-in-alt"></i></div>
+                                <div class="activity-details">
+                                    <h4>System Login</h4>
+                                    <p>You logged into the system</p>
+                                    <span class="activity-time">Today, 10:30 AM</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="activity-details">
+                                    <h4>Solar Storm Prediction</h4>
+                                    <p>You ran a prediction with parameters: Bx=-5.55, By=3.00, Bz=1.25</p>
+                                    <span class="activity-time">Today, 10:35 AM</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-database"></i></div>
+                                <div class="activity-details">
+                                    <h4>Data Access</h4>
+                                    <p>You accessed the Solar Wind dataset</p>
+                                    <span class="activity-time">Today, 10:40 AM</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-cog"></i></div>
+                                <div class="activity-details">
+                                    <h4>Settings Change</h4>
+                                    <p>You updated your notification preferences</p>
+                                    <span class="activity-time">Yesterday, 3:15 PM</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-sign-out-alt"></i></div>
+                                <div class="activity-details">
+                                    <h4>System Logout</h4>
+                                    <p>You logged out of the system</p>
+                                    <span class="activity-time">Yesterday, 5:30 PM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>The Solar Storm Prediction System is designed to predict solar storm events using machine learning algorithms and historical solar data.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="prediction.html">Prediction</a></li>
+                        <li><a href="visualization.html">Visualization</a></li>
+                        <li><a href="historical.html">Historical Data</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-phone"></i> 7559864002</p>
+                    <p><i class="fas fa-envelope"></i> muhammednakash23@gmail.com</p>
+                    <p><i class="fas fa-globe"></i> www.solarstormprediction.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Solar Storm Prediction System. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* Additional styles for profile page */
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+            padding-left: 0;
+        }
+        
+        .nav-tabs li {
+            margin-right: 1rem;
+        }
+        
+        .nav-tabs a {
+            display: block;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            color: var(--dark-color);
+            border-bottom: 2px solid transparent;
+        }
+        
+        .nav-tabs a.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .account-danger-zone {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border: 1px solid var(--danger-color);
+            border-radius: 8px;
+        }
+        
+        .checkbox-group {
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .activity-list {
+            margin-top: 1.5rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--light-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .activity-details h4 {
+            margin: 0 0 0.25rem 0;
+            color: var(--dark-color);
+        }
+        
+        .activity-details p {
+            margin: 0 0 0.25rem 0;
+            color: #666;
+        }
+        
+        .activity-time {
+            font-size: 0.85rem;
+            color: #999;
+        }
+    </style>
+
+    <script src="js/main.js"></script>
+    <script>
+
+        // Tab switching functionality
+        document.querySelectorAll('.nav-tabs a').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all tabs and panes
+                document.querySelectorAll('.nav-tabs a').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show the corresponding tab pane
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Form submission handlers
+        document.getElementById('personalInfoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            
+            // Update profile display
+            document.getElementById('profileName').textContent = fullName;
+            document.getElementById('profileEmail').textContent = email;
+            
+            alert('Personal information updated successfully!');
+        });
+        
+        document.getElementById('accountSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Simple validation
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Please fill in all password fields.');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('New password and confirmation do not match.');
+                return;
+            }
+            
+            // For demo purposes, we'll just show a success message
+            alert('Password updated successfully!');
+            
+            // Clear the form
+            this.reset();
+        });
+        
+        document.getElementById('notificationSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Notification settings updated successfully!');
+        });
+        
+        // Activity log filtering
+        document.getElementById('filterActivityBtn').addEventListener('click', function() {
+            const activityType = document.getElementById('activityType').value;
+            alert(`Filtering activities by type: ${activityType}. This feature will be implemented in a future update.`);
+        });
+    </script>
+</body>
+</html>
