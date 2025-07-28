@@ -68,5 +68,5 @@ frontend/
 ## Login Credentials
 
 For demonstration purposes, use the following credentials:
-- Username: `admin`
-- Password: `admin123`
+- Username: `nakash`
+- Password: `nakash123`
